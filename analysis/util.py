@@ -440,12 +440,7 @@ def run(file,path):
           
 
 if __name__ == "__main__":
-    
-    # file_list = next(os.walk(ROOT_DIR))[2]
     file = sys.argv[1]
-    # for i in file_list:
-    #     if i.endswith('.csv'):
-    #         file = i
     save_dir = os.path.join(ROOT_DIR,file.split('.')[0])
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
