@@ -1,6 +1,5 @@
 import os
 import sys
-import json
 import numpy as np
 import pandas as pd
 import matplotlib
@@ -23,25 +22,6 @@ count = 1
 output = {}
 
 
-class MyEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, np.integer):
-            return int(obj)
-        elif isinstance(obj, np.floating):
-            return float(obj)
-        elif isinstance(obj, np.ndarray):
-            return obj.tolist()
-        else:
-            return super(MyEncoder, self).default(obj)
-
-def countFile(key):
-    if count < 10:
-        key_num = "0{}".format(count)
-    else:
-        key_num = "{}".format(count)
-    value = "{}.png".format(key)
-    output.update({str(key_num):value})
-    count = count+1
     
 
 def ConvertToImageCoords(latCoord, longCoord, latRange, longRange, imageSize):
@@ -97,7 +77,7 @@ def run(file,path):
 
     plt.savefig('{}/{}'.format(path,'histogram'))
     plt.clf()
-    countFile('histogram')
+
 
         #%% plot scatter of trip duration vs. aerial distance between pickup and dropoff
     taxiDB['log duration']       = np.log1p(taxiDB['duration [min]'])
@@ -119,7 +99,7 @@ def run(file,path):
 
     plt.savefig('{}/{}'.format(path,'distance'))
     plt.clf()
-    countFile('distance')
+   
     
     # show the log density of pickup and dropoff locations
     imageSize = (700,700)
@@ -139,7 +119,7 @@ def run(file,path):
 
     plt.savefig('{}/{}'.format(path,'visualize_map'))
     plt.clf()
-    countFile('visualize_map')
+    
     
     pickupTime = pd.to_datetime(taxiDB['pickup_datetime'])
 
@@ -173,7 +153,7 @@ def run(file,path):
 
     plt.savefig('{}/{}'.format(path,'histogram_cluster'))
     plt.clf()
-    countFile('histogram_cluster')
+  
 
 
     templateTrips = TripKmeansModel.cluster_centers_ * np.tile(stdTripAttr,(numClusters,1)) + np.tile(meanTripAttr,(numClusters,1))
@@ -193,8 +173,7 @@ def run(file,path):
 
     plt.savefig('{}/{}'.format(path,'show_map'))
     plt.clf()
-    countFile('show_map')
-
+   
 
     for i in range(len(srcImCoords[0])):
         plt.arrow(srcImCoords[1][i],srcImCoords[0][i], dstImCoords[1][i]-srcImCoords[1][i], dstImCoords[0][i]-srcImCoords[0][i], 
@@ -217,8 +196,8 @@ def run(file,path):
    
     plt.savefig('{}/{}'.format(path,'trip_duration_weekday'))
     plt.clf()
-    countFile('trip_duration_weekday')
-        # calculate the trip distribution for different hours of the weekend
+   
+    # calculate the trip distribution for different hours of the weekend
     hoursOfDay = np.sort(taxiDB['src hourOfDay'].astype(int).unique())
     clusterDistributionHourOfDay_weekend = np.zeros((len(hoursOfDay),numClusters))
     for k, hour in enumerate(hoursOfDay):
@@ -237,7 +216,7 @@ def run(file,path):
     
     plt.savefig('{}/{}'.format(path,'trip_duration_weekend'))
     plt.clf()
-    countFile('trip_duration_weekend')
+
         # calculate the trip distribution for day of week
     daysOfWeek = np.sort(taxiDB['dayOfWeek'].unique())
     clusterDistributionDayOfWeek = np.zeros((len(daysOfWeek),numClusters))
@@ -252,7 +231,7 @@ def run(file,path):
     
     plt.savefig('{}/{}'.format(path,'day_of_week'))
     plt.clf()
-    countFile('day_of_week')
+
 
 
     # calculate the trip distribution for day of year
@@ -271,7 +250,7 @@ def run(file,path):
 
     plt.savefig('{}/{}'.format(path,'month_distribution'))
     plt.clf()
-    countFile('month_distribution')
+
     hoursOfYear = np.sort(taxiDB['hourOfYear'].astype(int).unique())
 
     clusterDistributionHourOfYear = np.zeros((len(range(hoursOfYear[0],hoursOfYear[-1]+1)),numClusters))
@@ -322,8 +301,8 @@ def run(file,path):
 
     plt.savefig('{}/{}'.format(path,'pca_graph'))
     plt.clf()
-    countFile('pca_graph')
-        # collect traces for weekdays and weekends 
+
+    # collect traces for weekdays and weekends 
     listOfFullWeekdays = []
     listOfFullWeekends = []
     for uniqueVal in np.unique(dayOfYearVec):
@@ -363,7 +342,7 @@ def run(file,path):
 
     plt.savefig('{}/{}'.format(path,'weekday_weekend'))
     plt.clf()
-    countFile('weekday_weekend')
+
 
     fig, axArray = plt.subplots(nrows=numComponents,ncols=1,sharex=True, figsize=(12,11))
     fig.suptitle('주성분 계수에 따른 운행 분포', fontsize=25)
@@ -382,7 +361,7 @@ def run(file,path):
 
     plt.savefig('{}/{}'.format(path,'trip_distribution_of_PCA'))
     plt.clf()
-    countFile('trip_distribution_of_PCA')
+
 
     numTopTripsToShow = 8
     numBottomTripsToShow = 6
@@ -408,8 +387,8 @@ def run(file,path):
     plt.title('주성분 계수2의 운행 기록')
     plt.savefig('{}/{}'.format(path,'trip_distribution_of_PCA2'))
     plt.clf()
-    countFile('trip_distribution_of_PCA2')
-        # meaning of 3rd PC
+
+    # meaning of 3rd PC
     numTopTripsToShow = 4
     numBottomTripsToShow = 10
 
@@ -432,7 +411,7 @@ def run(file,path):
                 edgecolor='b', facecolor='b', width=2.8,alpha=0.9,head_width=10.0,head_length=10.0,length_includes_head=True)
     plt.savefig('{}/{}'.format(path,'trip_distribution_of_PCA3'))
     plt.clf()
-    countFile('trip_distribution_of_PCA3')
+
 
     with open(os.path.join(path,'{}.json'.format("extract")),'w',encoding='utf-8') as outfile:
         json.dump(output,outfile,ensure_ascii=False,indent='\t',cls=MyEncoder)
